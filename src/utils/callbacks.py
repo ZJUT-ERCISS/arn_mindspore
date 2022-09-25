@@ -234,7 +234,7 @@ class SaveCallback(Callback):
                 self.acc = result['Accuracy']
                 print("=" * 80)
                 print("ACC:: " + str(self.acc) + "\n")
-                file_name = str("0924_ARN_ucf_MSE") + str(self.acc) + ".ckpt"
+                file_name = str("ARN_ucf_MSE") + str(self.acc) + ".ckpt"
                 save_checkpoint(save_obj=cb_params.train_network,
                                 ckpt_file_name=file_name)
                 print("Save the maximum accuracy checkpoint, the accuracy is", self.acc)
