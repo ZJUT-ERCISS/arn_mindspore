@@ -1,24 +1,35 @@
-# Contents
-- [Contents](#contents)
-  - [Description](#description)
-  - [Model Architecture](#model-architecture)
-  - [Dataset](#dataset)
-  - [Environment Requirements](#environment-requirements)
-  - [Getting Start](#getting-start)
-  - [Script Description](#script-description)
-    - [Script and Sample Code](#script-and-sample-code)
-    - [Script Parameters](#script-parameters)
-    - [Training Process](#training-process)
-    - [Evaluation Process](#evaluation-process)
-  - [Citation](#citation)
+# arn_mindspore
+- [Description](https://github.com/ZJUT-ERCISS/fairmot_mindspore#description)
+- [Model Architecture](https://github.com/ZJUT-ERCISS/fairmot_mindspore#model-architecture)
+- [Dataset](https://github.com/ZJUT-ERCISS/fairmot_mindspore#dataset)
+- [Environment Requirements](https://github.com/ZJUT-ERCISS/fairmot_mindspore#environment-requirements)
+- Quick Start
+  - [Requirements Installation](https://github.com/ZJUT-ERCISS/fairmot_mindspore#requirements-installation)
+  - [Dataset Preparation](https://github.com/ZJUT-ERCISS/fairmot_mindspore#dataset-preparation)
+  - [Model Checkpoints](https://github.com/ZJUT-ERCISS/fairmot_mindspore#model-checkpoints)
+  - [Running](https://github.com/ZJUT-ERCISS/fairmot_mindspore#running)
+- Script Description
+  - Training Process
+    - [Training](https://github.com/ZJUT-ERCISS/fairmot_mindspore#training)
+    - [Distributed Training](https://github.com/ZJUT-ERCISS/fairmot_mindspore#distributed-training)
+  - [Evaluation Process](https://github.com/ZJUT-ERCISS/fairmot_mindspore#evaluation-process)
+- Model Description
+  - [Performance](https://github.com/ZJUT-ERCISS/fairmot_mindspore#performance)
+- [Citation](#Citation)
 
-## Description
-
-![ARN_architecture](./src/pictures/ARN_model.png)
+# Description
 
 ARN builds on a C3D encoder for spatio-temporal video blocks to capture short-range action patterns. To improve training of the encoder,they introduce spatial and temporal self-supervision by rotations, and spatial and temporal jigsaws and propose "attention by alignment", a new data splits for a systematic comparison of few-shot action recognition algorithms.
 
-## Dataset
+# Model Architecture
+
+![ARN_architecture](./src/pictures/ARN_model.png)
+
+The overall network architecture of ARN is shown below:
+
+[link](#[[2001.03905\] Few-shot Action Recognition with Permutation-invariant Attention (arxiv.org)](https://arxiv.org/abs/2001.03905))
+
+# Dataset
 
 Dataset used: [UCF101](https://www.crcv.ucf.edu/data/UCF101.php)
 
@@ -48,7 +59,7 @@ Dataset used: [UCF101](https://www.crcv.ucf.edu/data/UCF101.php)
   ...
 ```
 
-## Environment Requirements
+# Environment Requirements
 
 - Framework
   - [MindSpore](https://www.mindspore.cn/install/en)
@@ -76,7 +87,25 @@ Python and dependencies
   - [MindSpore Tutorials](https://www.mindspore.cn/tutorials/en/master/index.html)
   - [MindSpore Python API](https://www.mindspore.cn/docs/en/master/index.html)
 
-## Getting Start
+# Quick Start
+
+## Requirements Installation
+
+```text
+pip install -r requirements.txt
+```
+
+## Dataset Preparation
+
+ARN model uses UCF101 dataset to train and validate in this repository.Please refer to their website ([UCF101](https://www.crcv.ucf.edu/data/UCF101.php))to download and prepare all the data.
+
+**Configure path to dataset root** in `data/data.json` file.
+
+## Model Checkpoints
+
+The pretrain model is trained on the the UCF101 for 30 epochs. It can be downloaded here:
+
+## Running
 
 - Run on GPU
 
@@ -84,217 +113,119 @@ Python and dependencies
 cd scripts/
 
 # run training example
-bash train_standalone.sh [PROJECT_PATH] [DATA_PATH]
+bash run_standalone_train.sh [PROJECT_PATH] [DATA_PATH]
 
 # run distributed training example
-bash train_distribute.sh [PROJECT_PATH] [DATA_PATH]
+bash run_distribute_train.sh [PROJECT_PATH] [DATA_PATH]
 
 # run evaluation example
-bash eval_standalone.sh [PROJECT_PATH] [DATA_PATH]
+bash run_standalone_eval.sh [PROJECT_PATH] [DATA_PATH]
 ```
 
-## Script Description
+# Script Description
 
-### Script and Sample Code
+## Training Process
 
-```text
-.
-│  infer.py                                     // infer script
-│  README.md                                    // descriptions about arn
-│  train.py                                     // training script
-│
-├─scripts
-│      eval_standalone.sh                       // shell script for testing on GPU
-│      train_distribute.sh                      // shell script for distributed training on GPU
-│      train_standalone.sh                      // shell script for training on GPU
-│
-└─src
-    │
-    ├─config/arn
-    │      arn.yaml                           // ARN parameter configuration
-    │
-    ├─data
-    │  │  builder.py                            // build data
-    │  │  download.py                           // download dataset
-    │  │  generator.py                          // generate video dataset
-    │  │  images.py                             // process image
-    │  │  kinetics400.py                        // kinetics400 dataset
-    │  │  ucf101.py                             // UCF101 dataset
-    │  │  meta.py                               // public API for dataset
-    │  │  path.py                               // IO path
-    │  │  ucf101.py                             // ucf101 dataset
-    │  │  video_dataset.py                      // video dataset
-    │  │
-    │  └─transforms
-    │          builder.py                       // build transforms
-    │          video_center_crop.py             // center crop
-    │          video_normalize.py               // normalize
-    │          video_random_crop.py             // random crop
-    │          video_random_horizontal_flip.py  // random horizontal flip
-    │          video_reorder.py                 // reorder
-    │          video_rescale.py                 // rescale
-    │          video_reshape.py                 // reshape
-    │          video_resize.py                  // resize
-    │          video_short_edge_resize.py       // short edge resize
-    │
-    ├─example/arn
-    │      arn_ucf101_eval.py              		// eval arn model
-    │      arn_ucf101_train.py             		// train arn model
-    │      2001.03905.pdf                  		// arn paper
-    |
-    ├─loss
-    │      builder.py                           // build loss
-    │
-    ├─models
-    │  │  builder.py                            // build model
-    │  │  arn.py                                // arn model
-    │  │
-    │  └─layers
-    │          adaptiveavgpool3d.py             // adaptive average pooling 3D.
-    │          avgpool3d.py                     // average pooling 3D
-    │          dropout_dense.py                 // dense head
-    │          inflate_conv3d.py                // inflate conv3d block
-    │          resnet3d.py                      // resnet backbone
-    │          squeeze_excite3d.py              // squeeze and excitation
-    │          swish.py                         // swish activation function
-    │          unit3d.py                        // unit3d module
-    │
-    ├─optim
-    │      builder.py                           // build optimizer
-    │
-    ├─schedule
-    │      builder.py                           // build learning rate shcedule
-    │      lr_schedule.py                       // learning rate shcedule
-    │
-    └─utils
-            callbacks.py                        // eval loss monitor
-            check_param.py                      // check parameters
-            class_factory.py                    // class register
-            config.py                           // parameter configuration
-            six_padding.py                      // convert padding list into tuple
+### Training Alone
+
+Run `scripts/run_standalone_train.sh` to train the model standalone. The usage of the script is:
+
+#### Running on GPU
 
 ```
-
-### Script Parameters
-
-- config for arn 
-  
-```text
-# model architecture
-model_name: arn
-
-# The dataset sink mode.
-dataset_sink_mode: False
-
-# Context settings.
-context:
-    mode: 0 #0--Graph Mode; 1--Pynative Mode
-    device_target: "GPU"
-
-# model settings of every parts
-model:
-    type: arn
-    support_num_per_class: 5
-    query_num_per_class: 3
-    class_num: 5
-    is_c3d: False
-    in_channels: 3
-    out_channels: 64
-    jigsaw: 10
-    sigma: 100
-
-# learning rate for training process
-learning_rate:
-    lr: 0.001
-
-# optimizer for training process
-optimizer:
-    type: 'Adam'
-
-loss:
-    type: MSELoss
-
-train:
-    pre_trained: True
-    pretrained_model: "/home/huyt/807_ARN_ucf_CROSS0.7446666666666667.ckpt"
-    ckpt_path: "./output/"
-    epochs: 100
-    save_checkpoint_epochs: 5
-    save_checkpoint_steps: 1875
-    keep_checkpoint_max: 10
-    run_distribute: True
-
-infer:
-    pretrained_model: "/home/huyt/807_ARN_ucf_CROSS0.7446666666666667.ckpt"
-
-# UCF101 dataset config
-data_loader:
-    train:
-        dataset:
-              type: UCF101
-              path: "/home/publicfile/UCF101"
-              batch_size: 1
-              split: 'train'
-              shuffle: False
-              seq: 16
-              num_parallel_workers: 1
-              suffix: "task"
-              task_num: 100000
-              task_n: 5
-              task_k: 1
-              # task_k: 5
-              task_q: 1
-        map:
-            operations:
-                - type: VideoReshape
-                  shape: [-1, 240, 320, 3]
-                - type: VideoResize
-                  size: [128, 128]
-                - type: VideoToTensor
-                - type: VideoNormalize
-                  mean: [0.3474, 0.3474, 0.3474]
-                  std: [0.2100, 0.2100, 0.2100]
-                - type: VideoReshape
-                  shape: [3, -1, 16, 128, 128]
-            input_columns: ["video"]
-
-    eval:
-        dataset:
-            type: UCF101
-              path: "/home/publicfile/UCF101"
-              batch_size: 1
-              split: 'test'
-              shuffle: False
-              seq: 16
-              num_parallel_workers: 1
-              suffix: "task"
-              task_num: 100
-              task_n: 5
-              task_k: 1
-              # task_k: 5
-              task_q: 1
-        map:
-            operations:
-                - type: VideoReshape
-                  shape: [-1, 240, 320, 3]
-                - type: VideoResize
-                  size: [128, 128]
-                - type: VideoToTensor
-                - type: VideoNormalize
-                  mean: [0.3474, 0.3474, 0.3474]
-                  std: [0.2100, 0.2100, 0.2100]
-                - type: VideoReshape
-                  shape: [3, -1, 16, 128, 128]             
-            input_columns: ["video"]
-    group_size: 1
+bash scripts/run_standalone_train.sh [config_file] [pretrained_model]
 ```
 
-## Citation
+For example, you can run the shell command below to launch the training procedure:
+
+```
+bash scripts/run_standalone_train.sh ./arn.yaml ./ARN_ucf_MSE.ckpt
+```
+
+The model checkpoint will be saved into `./output`.
+
+### Distributed Training
+
+Run `scripts/run_distribute_train.sh` to train the model distributed. The usage of the script is:
+
+#### Running on GPU
+
+```
+bash scripts/run_distribute_train.sh [DEVICE_NUM] [VISIBLE_DEVICES(0,1,2,3,4,5,6,7)] [config_file] [pretrained_model]
+```
+
+For example, you can run the shell command below to launch the distributed training procedure:
+
+```
+bash scripts/run_distribute_train.sh 8 0,1,2,3,4,5,6,7 ./arn.yaml ./ARN_ucf_MSE.ckpt
+```
+
+The above shell script will run distribute training in the background. You can view the results through the file `train/tran.log`.
+
+The model checkpoint will be saved into `train/ckpt`.
+
+## Evaluation Process
+
+The evaluation data set was [UCF101](https://www.crcv.ucf.edu/data/UCF101.php)
+
+Run `scripts/run_eval.sh` to evaluate the model. The usage of the script is:
+
+```
+bash scripts/run_standalone_eval.sh [device] [config] [load_ckpt] [dataset_dir]
+```
+
+For example, you can run the shell command below to launch the validation procedure.
+
+```
+bash scripts/run_standalone_eval.sh GPU ./arn.yaml ./ARN_ucf_MSE.ckpt data_path
+```
+
+The eval results can be viewed in `eval/eval.log`.
+
+# [Model Description](https://github.com/ZJUT-ERCISS/fairmot_mindspore#contents)
+
+## [Performance](https://github.com/ZJUT-ERCISS/fairmot_mindspore#contents)
+
+### ARN on UCF101 dataset with detector
+
+#### Performance parameters
+
+| Parameters          | GPU Standalone              | GPU Distributed             |
+| ------------------- | --------------------------- | --------------------------- |
+| Model Version       | ARN                         | ARN                         |
+| Resource            | RTX 3090 24GB               | 8x RTX 3090 24GB            |
+| Uploaded Date       | 25/06/2021 (day/month/year) | 21/02/2021 (day/month/year) |
+| MindSpore Version   | 1.2.0                       | 1.5.0                       |
+| Training Dataset    | UCF101                      | UCF101                      |
+| Evaluation Dataset  | UCF101                      | UCF101                      |
+| Training Parameters | epoch=30, batch_size=4      | epoch=30, batch_size=12     |
+| Optimizer           | Adam                        | Adam                        |
+| Loss Function       | MSELoss                     | MSELoss                     |
+| Train Performance   |                             |                             |
+
+# Citation
 
 If you find this project useful in your research, please consider citing:
 
+```text
+@article{DBLP:journals/corr/abs-2001-03905,
+  author    = {Hongguang Zhang and
+               Li Zhang and
+               Xiaojuan Qi and
+               Hongdong Li and
+               Philip H. S. Torr and
+               Piotr Koniusz},
+  title     = {Few-shot Action Recognition via Improved Attention with Self-supervision},
+  journal   = {CoRR},
+  volume    = {abs/2001.03905},
+  year      = {2020}
+}
+```
+
+
+
 ```latex
-@misc{arn_misdspore,
+@misc{arn_mindspore,
     author = {Zhang, Hongguang and Zhang, Li and Qi, Xiaojuan and Li, Hongdong and Torr, Philip HS
                 and Koniusz, Piotr},
     title = {Mindspore Video Models},
